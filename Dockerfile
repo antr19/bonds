@@ -31,7 +31,7 @@ RUN python -m nuitka \
     --onefile \
     --lto=no \
     --assume-yes-for-downloads \
-    --output-filename=app_binary \
+    --output-filename=moex.bin \
     main.py
 
 # ==========================================
@@ -45,7 +45,7 @@ WORKDIR /app
 RUN groupadd -r appgroup && useradd -r -g appgroup appuser
 
 # Копируем ТОЛЬКО скомпилированный бинарный файл из этапа builder
-COPY --from=builder /app/app_binary /app/app_binary
+COPY --from=builder /app/moex.bin /app/moex.bin
 COPY --from=builder /app/config.yml /app/config.yml
 
 # Настраиваем права доступа
@@ -53,4 +53,4 @@ RUN chown -R appuser:appgroup /app
 USER appuser
 
 # Запуск чистого скомпилированного бинарника
-CMD ["/app/app_binary"]
+CMD ["/app/moex.bin"]

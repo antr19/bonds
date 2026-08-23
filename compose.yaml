@@ -1,5 +1,5 @@
 services:
-  web:
+  moex:
     build: .
     environment:
       - PYTHONUNBUFFERED=1
