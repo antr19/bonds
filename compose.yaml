@@ -1,6 +1,6 @@
 services:
   moex:
-    build: .
+    image: ghcr.io/antr19/bonds:master
     environment:
       - PYTHONUNBUFFERED=1
       - REDIS_HOST=${REDIS_HOST}
