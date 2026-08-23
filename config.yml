@@ -1,0 +1,7 @@
+jobs:
+  - app: parser
+    hour: 16
+    minute: 00
+  - app: collector
+    hour: 16
+    minute: 30

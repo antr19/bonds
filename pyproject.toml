@@ -1,0 +1,33 @@
+[project]
+name = "moex"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Your Name",email = "you@example.com"}
+]
+readme = "README.md"
+requires-python = "^3.12,<3.15"
+dependencies = [
+    "t-tech-investments (>=1.49.3,<2.0.0)",
+    "redis (>=8.1.0,<9.0.0)",
+    "aiogram (>=3.30.0,<4.0.0)",
+    "pandas (>=3.0.5,<4.0.0)",
+    "openpyxl (>=3.1.5,<4.0.0)",
+    "bs4 (>=0.0.2,<0.0.3)",
+    "retrying (>=1.4.2,<2.0.0)",
+    "aiohttp-socks (>=0.11.0,<0.12.0)",
+    "pyyaml (>=6.0.3,<7.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[[tool.poetry.source]]
+name = "tbank"
+url = "https://opensource.tbank.ru/api/v4/projects/238/packages/pypi/simple"
+priority = "explicit"
+
+[tool.poetry.dependencies]
+t-tech-investments = {source = "tbank"}
