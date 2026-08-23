@@ -1,6 +1,7 @@
 services:
   moex:
-    image: ghcr.io/antr19/bonds:master
+    image: ghcr.io/${GH_USERNAME}/${GH_REPO}:${IMAGE_TAG:-latest}
+    pull_policy: always
     environment:
       - PYTHONUNBUFFERED=1
       - REDIS_HOST=${REDIS_HOST}
