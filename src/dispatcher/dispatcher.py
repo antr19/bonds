@@ -27,6 +27,8 @@ class CronDispatcher:
             'hour': hour,
             'minute': minute
         })
+        print("Добавлена новая задача:", coro_func.__name__)
+        print("День недели:", day_of_week, "День:", day, "Час:", hour, "Минуты:", minute)
 
     def _should_run(self, job: dict, now: datetime) -> bool:
         """Проверяет, нужно ли запускать задачу сейчас."""
