@@ -10,7 +10,7 @@ from src.tinkoff.client import TBankPortfolioREST
 
 from src.telegram.client import send_data_to_telegram
 
-async def extend_bond(apiClient, index, bond, bonds):
+async def extend_bond(apiClient, redisClient, index, bond, bonds):
     print(
         f"[{datetime.now().timestamp()}] Request {bond['SHORTNAME']} - {bond['SECID']} from https://iss.moex.com")
     result = await get_securities_bond(apiClient, bond['SECID'])
@@ -21,8 +21,7 @@ async def extend_bond(apiClient, index, bond, bonds):
         elif line[0] == "COUPONFREQUENCY":
             bonds.loc[index, 'COUPONFREQUENCY'] = int(line[2])
 
-    client = RedisClient()
-    credit_status = await client.get(f"client_status:{bond['SECID']}")
+    credit_status = await redisClient.get(f"client_status:{bond['SECID']}")
 
     bonds.loc[index, 'DOHOD'] = credit_status.get('dohod', None)
     bonds.loc[index, 'AKRA'] = credit_status.get('akra', None)
@@ -40,8 +39,10 @@ async def collector():
 
         filtered_bonds = filter_bonds(data_bonds)
 
-        tasks = [extend_bond(apiClient, index, bond, filtered_bonds) for index, bond in filtered_bonds.iterrows()]
+        redisClient = RedisClient()
+        tasks = [extend_bond(apiClient, redisClient, index, bond, filtered_bonds) for index, bond in filtered_bonds.iterrows()]
         await asyncio.gather(*tasks)
+        await redisClient.close()
 
         filtered_bonds.to_csv("full_result.csv", sep=';')
         try:
