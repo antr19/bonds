@@ -12,7 +12,10 @@ REDIS_PORT = os.getenv("REDIS_PORT")
 
 class RedisClient:
     def __init__(self, redis_url: str = f"redis://{REDIS_HOST}:{REDIS_PORT}/0"):
-        self.redis = aioredis.from_url(redis_url, decode_responses=True, max_connections=5)
+        self.redis = aioredis.from_url(redis_url,
+                                       decode_responses=True,
+                                       max_connections=100,
+                                       connection_timeout=20)
 
     async def set(
         self,
