@@ -41,6 +41,11 @@ FROM debian:trixie-slim AS runner
 
 WORKDIR /app
 
+# Устанавливаем утилиту для работы с сертификатами
+RUN apt update && apt install -y ca-certificates && \
+    rm -rf /var/lib/apt/lists/* && \
+    update-ca-certificates
+
 # Создаем не-root пользователя для безопасности
 RUN groupadd -r appgroup && useradd -r -g appgroup appuser
 
