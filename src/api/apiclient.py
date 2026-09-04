@@ -1,6 +1,11 @@
 import aiohttp
 from retrying import retry
 
+from src.config import config
+from src.redis import client
+
+client_config = config['params']['client']
+
 class APIClient:
     def __init__(self):
         # Сессия создается один раз
@@ -8,8 +13,8 @@ class APIClient:
 
     async def __aenter__(self):
         connector = aiohttp.TCPConnector(
-            limit=20,  # Максимум 100 открытых соединений ВЕЗДЕ
-            limit_per_host=10,  # Максимум 10 одновременных соединений НА ОДИН ХОСТ
+            limit=client_config['limit'],  # Максимум 100 открытых соединений ВЕЗДЕ
+            limit_per_host=client_config['limit_per_host'],  # Максимум 10 одновременных соединений НА ОДИН ХОСТ
             ttl_dns_cache=300,  # Кэшировать DNS на 5 минут (ускоряет работу)
             enable_cleanup_closed=True  # Очищать закрытые SSL соединения
         )

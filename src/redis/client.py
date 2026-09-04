@@ -6,8 +6,12 @@ from typing import Any, Optional
 
 import redis.asyncio as aioredis
 
+from src.config import config
+
 REDIS_HOST = os.getenv("REDIS_HOST")
 REDIS_PORT = os.getenv("REDIS_PORT")
+
+redis_config = config['params']['redis']
 
 
 class RedisClient:
@@ -15,8 +19,8 @@ class RedisClient:
         self.pool = aioredis.BlockingConnectionPool.from_url(
             redis_url,
             decode_responses=True,
-            max_connections=100,
-            timeout=20.0  # Ожидание освобождения сокета из пула
+            max_connections=redis_config['max_connections'],
+            timeout=redis_config['timeout']  # Ожидание освобождения сокета из пула
         )
         self.redis = aioredis.Redis(connection_pool=self.pool)
 

@@ -1,7 +1,17 @@
 jobs:
   - app: parser
-    hour: 16
+    hour: 14
     minute: 00
   - app: collector
-    hour: 16
+    hour: 14
     minute: 30
+params:
+  report:
+    yield_persent_short: 17
+    yield_persent_premiun: 17
+  client:
+    limit: 20
+    limit_per_host: 10
+  redis:
+    max_connections: 100
+    timeout: 20.0

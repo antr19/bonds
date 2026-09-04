@@ -1,15 +1,12 @@
 import asyncio
-import yaml
 
 from src.dispatcher.dispatcher import CronDispatcher
 from src.parser.parser import parser
 from src.collector.collector import collector
+from src.config import config
 
 async def main():
     dispatcher = CronDispatcher()
-
-    with open("config.yml", "r") as f:
-        config = yaml.safe_load(f)
 
     for job in config["jobs"]:
         if job["app"] == "parser":

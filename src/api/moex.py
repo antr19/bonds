@@ -6,7 +6,7 @@ from datetime import date, timedelta
 BASE_HOST = "http://iss.moex.com" #Задаем базовый адрес запроса для облигаций
 
 def filter_bonds(data_bonds):
-    columns = ["BOARDID", "SHORTNAME", "SECID", "LISTLEVEL", "NUMTRADES", "VALUE", "LOW", "HIGH", "CLOSE",
+    columns = ["BOARDID", "SHORTNAME", "INN", "SECID", "LISTLEVEL", "NUMTRADES", "VALUE", "LOW", "HIGH", "CLOSE",
                "LEGALCLOSEPRICE", "ACCINT", "WAPRICE", "YIELDCLOSE", "OPEN", "VOLUME", "MARKETPRICE2", "MARKETPRICE",
                "MP2VALTRD", "MARKETPRICE3TRADESVALUE", "MATDATE", "DURATION", "YIELDATWAP", "COUPONPERCENT",
                "COUPONVALUE", "COUPONFREQUENCY", "DOHOD", "AKRA", "EXPERT", "OTHERCREDITSTATUS", "BUYBACKDATE",
@@ -28,6 +28,7 @@ def filter_bonds(data_bonds):
     df_bonds = pd.DataFrame(filtred_bonds, columns=columns)
     df_bonds[['DOHOD', 'AKRA', 'EXPERT', 'OTHERCREDITSTATUS']] = df_bonds[
         ['DOHOD', 'AKRA', 'EXPERT', 'OTHERCREDITSTATUS']].astype('object')
+    df_bonds['INN'] = df_bonds['INN'].astype(str)
     
     return df_bonds
 
@@ -37,6 +38,9 @@ async def get_bonds_page(apiClient, index=0):
     url_next_page = url + url_opt
     return await apiClient.get_json(url_next_page)
 
+async def get_emitter_page(apiClient, emitter_id):
+    url = f"{BASE_HOST}/iss/emitters/{emitter_id}.json"
+    return await apiClient.get_json(url)
 
 async def get_bonds(apiClient):
     total, step = (await get_bonds_page(apiClient))['history.cursor']['data'][0][1:]

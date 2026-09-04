@@ -4,11 +4,14 @@ import json
 from datetime import date, datetime
 
 from src.api.apiclient import APIClient
-from src.api.moex import get_bonds, filter_bonds, get_securities_bond
+from src.api.moex import get_bonds, filter_bonds, get_securities_bond, get_emitter_page
 from src.redis.client import RedisClient
 from src.tinkoff.client import TBankPortfolioREST
+from src.config import config
 
 from src.telegram.client import send_data_to_telegram
+
+report_config = config['params']['report']
 
 async def extend_bond(apiClient, redisClient, index, bond, bonds):
     print(
@@ -20,6 +23,8 @@ async def extend_bond(apiClient, redisClient, index, bond, bonds):
             bonds.loc[index, 'LISTLEVEL'] = int(line[2])
         elif line[0] == "COUPONFREQUENCY":
             bonds.loc[index, 'COUPONFREQUENCY'] = int(line[2])
+        elif line[0] == "EMITTER_ID":
+            bonds.loc[index, 'INN'] = (await get_emitter_page(apiClient, int(line[2])))['emitter']['data'][0][3]
 
     credit_status = await redisClient.get(f"client_status:{bond['SECID']}")
 
@@ -51,37 +56,37 @@ async def collector():
         except Exception as e:
             print("Error:", e)
 
-        filtred_short_bonds = filtered_bonds[
+        filtered_short_bonds = filtered_bonds[
             (filtered_bonds['LISTLEVEL'] < 3) &
             (filtered_bonds['COUPONFREQUENCY'] > 3) &
             (filtered_bonds['MATDATE'] < str(date.today().replace(year=date.today().year + 1))) &
-            (filtered_bonds['YIELDATWAP'] > 17)
+            (filtered_bonds['YIELDATWAP'] > report_config['yield_persent_short'])
             ]
 
-        print("Short list:", len(filtred_short_bonds))
-        report["maybe_income_assets"] = filtred_short_bonds.to_dict(orient='records')
+        print("Short list:", len(filtered_short_bonds))
+        report["maybe_income_assets"] = filtered_short_bonds.to_dict(orient='records')
 
-        premium_filtred_short_bonds = filtered_bonds[
+        premium_filtered_short_bonds = filtered_bonds[
             (filtered_bonds['LISTLEVEL'] == 1) &
             (filtered_bonds['COUPONFREQUENCY'] > 3) &
-            (filtered_bonds['YIELDATWAP'] > 17)
+            (filtered_bonds['YIELDATWAP'] > report_config['yield_persent_premiun'])
             ]
 
-        print("Premium short list:", len(premium_filtred_short_bonds))
-        report["maybe_safe_assets"] = premium_filtred_short_bonds.to_dict(orient='records')
+        print("Premium short list:", len(premium_filtered_short_bonds))
+        report["maybe_safe_assets"] = premium_filtered_short_bonds.to_dict(orient='records')
 
-        # filtred_short_bonds = short_data_bonds[(short_data_bonds['LISTLEVEL'] == '2') | (short_data_bonds['LISTLEVEL'] == '1')]
+        # filtered_short_bonds = short_data_bonds[(short_data_bonds['LISTLEVEL'] == '2') | (short_data_bonds['LISTLEVEL'] == '1')]
 
-        filtred_short_bonds.to_csv("short_result.csv", sep=';')
+        filtered_short_bonds.to_csv("short_result.csv", sep=';')
         try:
-            filtred_short_bonds.to_excel("short_result.xlsx", index=False)
+            filtered_short_bonds.to_excel("short_result.xlsx", index=False)
             paths.append("short_result.xlsx")
         except Exception as e:
             print("Error:", "Short Result:", e)
 
-        premium_filtred_short_bonds.to_csv("premium_result.csv", sep=';')
+        premium_filtered_short_bonds.to_csv("premium_result.csv", sep=';')
         try:
-            premium_filtred_short_bonds.to_excel("premium_result.xlsx", index=False)
+            premium_filtered_short_bonds.to_excel("premium_result.xlsx", index=False)
             paths.append("premium_result.xlsx")
         except Exception as e:
             print("Error:", "Premium Result:", e)
